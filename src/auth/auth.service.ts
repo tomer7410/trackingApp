@@ -10,6 +10,7 @@ import {
   import {
     HashService
   } from 'src/users//hash/hash.service';
+import { User } from 'src/users/user.schema';
   
   @Injectable()
   export class AuthService {
@@ -17,19 +18,21 @@ import {
       private hashService: HashService,
       private jwtService: JwtService) {}
   
-    async validateUser(email: string, pass: string): Promise < any > {
-      const user = await this.userService.getUserByUsername(email);
+    async validateUser(username: string, pass: string): Promise < any > {
+      const user = await this.userService.getUserByUsername(username);
       if (user && (await this.hashService.comparePassword(pass, user.password))) {
         return user;
       }
       return null;
     }
   
-    async login(user: any) {
+    async generateUserCredentials(user: User) {
       const payload = {
-        username: user.email,
-        sub: user.id
+        email: user.email,
+        username: user.username,
+        sub: user._id,
       };
+  
       return {
         access_token: this.jwtService.sign(payload),
       };

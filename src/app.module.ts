@@ -10,7 +10,8 @@ import { AuthModule } from './auth/auth.module';
   imports: [
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
-      
+      autoSchemaFile: true,
+      sortSchema: true,
     }),
     MongooseModule.forRoot('mongodb://127.0.0.1:27017/auth'),
     UserModule,
