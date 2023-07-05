@@ -1,19 +1,12 @@
-import {
-    CanActivate,
-    ExecutionContext,
-    Injectable,
-    UnauthorizedException,
-  } from '@nestjs/common';
-  import { JwtService } from '@nestjs/jwt';
-  import { jwtConstants } from '../strategies/local/constants'
-  import { Request } from 'express';
+import { ExecutionContext, Injectable } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { GqlExecutionContext } from '@nestjs/graphql';
+import { AuthenticationError } from 'apollo-server-core';
 import { ExecutionContextHost } from '@nestjs/core/helpers/execution-context-host';
-  
-  @Injectable()
-  export class AuthGuard implements CanActivate {
-    constructor(private jwtService: JwtService) {}
-  
+
+@Injectable()
+export class GqlAuthGuard extends AuthGuard('jwt') {
+
     canActivate(context: ExecutionContext) {
         const ctx = GqlExecutionContext.create(context);
         const { req } = ctx.getContext();
@@ -21,6 +14,7 @@ import { ExecutionContextHost } from '@nestjs/core/helpers/execution-context-hos
         return super.canActivate(
             new ExecutionContextHost([req]),
         );
+
     }
 
     handleRequest(err: any, user: any) {
@@ -29,4 +23,5 @@ import { ExecutionContextHost } from '@nestjs/core/helpers/execution-context-hos
         }
         return user;
     }
-  }
+
+}

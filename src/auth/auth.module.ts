@@ -16,16 +16,14 @@ import {
   } from '@nestjs/jwt';
   import {
     jwtConstants
-  } from '../strategies/local/constants';
+  } from './constants';
   import {
     UsersService
   } from 'src/users/users.service';
   import {
     HashService
   } from 'src/users//hash/hash.service';
-  import {
-    LocalStrategy
-  } from '../strategies/local/local.strategy';
+import { AuthResolver } from './auth.resolver';
   
   @Module({
     imports: [
@@ -40,6 +38,6 @@ import {
         },
       }),
     ],
-    providers: [AuthService, UsersService, LocalStrategy, HashService],
+    providers: [AuthResolver,AuthService, UsersService, HashService],
   })
   export class AuthModule {}

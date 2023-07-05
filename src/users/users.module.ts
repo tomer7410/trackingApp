@@ -17,7 +17,7 @@ import {
 } from '@nestjs/jwt';
 import {
   jwtConstants
-} from '../strategies/local/constants';
+} from '../auth/constants';
 import {
   HashService
 } from './hash/hash.service';
@@ -26,13 +26,8 @@ import {
 } from 'src/auth/auth.service';
 import {
   JwtStrategy
-} from '../strategies/local/jwt.strategy';
-import {
-  LocalStrategy
-} from '../strategies/local/local.strategy';
+} from '../auth/jwt.strategy';
 import { UsersResolver } from './users.resolver';
-import { GraphQLModule } from '@nestjs/graphql';
-import { ApolloDriverConfig, ApolloDriver } from '@nestjs/apollo';
 
 @Module({
   imports: [
@@ -48,6 +43,6 @@ import { ApolloDriverConfig, ApolloDriver } from '@nestjs/apollo';
       },
     }),
   ],
-  providers: [UsersResolver,UsersService, HashService, AuthService, JwtStrategy, LocalStrategy],
+  providers: [UsersResolver,UsersService, HashService, AuthService, JwtStrategy],
 })
 export class UserModule {}
