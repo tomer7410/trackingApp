@@ -1,6 +1,6 @@
 import {
     jwtConstants
-  } from './constants';
+  } from '../constants';
   
   import {
     ExtractJwt,
@@ -14,7 +14,7 @@ import {
   } from '@nestjs/common';
   
   @Injectable()
-  export class JwtStrategy extends PassportStrategy(Strategy) {
+  export class AccessTokenStrategy extends PassportStrategy(Strategy,'jwt') {
     constructor() {
       super({
         jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),

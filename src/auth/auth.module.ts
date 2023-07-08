@@ -12,7 +12,7 @@ import {
     UserSchema
   } from 'src/users/user.schema';
   import {
-    JwtModule
+    JwtModule, JwtService
   } from '@nestjs/jwt';
   import {
     jwtConstants
@@ -22,8 +22,10 @@ import {
   } from 'src/users/users.service';
   import {
     HashService
-  } from 'src/users//hash/hash.service';
+  } from 'src/hash/hash.service';
 import { AuthResolver } from './auth.resolver';
+import { AccessTokenStrategy } from 'src/auth/strategies/accessToken.strategy';
+import { RefreshTokenStrategy } from 'src/auth/strategies/refreshToken.strategy';
   
   @Module({
     imports: [
@@ -31,13 +33,8 @@ import { AuthResolver } from './auth.resolver';
         name: User.name,
         schema: UserSchema
       }]),
-     JwtModule.register({
-        secret: jwtConstants.secret,
-        signOptions: {
-          expiresIn: '60d'
-        },
-      }),
+     JwtModule.register({}),
     ],
-    providers: [AuthResolver,AuthService, UsersService, HashService],
+    providers: [AuthResolver,AuthService, UsersService, HashService, AccessTokenStrategy,RefreshTokenStrategy],
   })
   export class AuthModule {}

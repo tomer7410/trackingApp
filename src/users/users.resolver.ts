@@ -1,20 +1,16 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
-import { UsersService } from './users.service';
+import { Resolver, Query} from '@nestjs/graphql';
 import { User } from './user.schema';
 import { UseGuards } from '@nestjs/common';
-import { AuthService } from 'src/auth/auth.service';
-import { LoggedUserOutput } from './dto/logged-user.output';
-import { GqlAuthGuard } from 'src/auth/auth.guard';
+import { LoggedUserOutput } from '../auth/dto/logged-user.output';
+import { AccessTokenGuard } from 'src/auth/guards/accessToken.guard';
 import { CurrentUser } from 'src/decorators/user.decorator';
 
 @Resolver(() => User)
 export class UsersResolver {
   constructor(
-    private readonly usersService: UsersService,
-    private readonly authService: AuthService
     ) {}
-  @UseGuards(GqlAuthGuard)
   @Query(() => LoggedUserOutput )
+  @UseGuards(AccessTokenGuard)
   sayHello(@CurrentUser() user:any): string {
     return 'Hello World!';
   }

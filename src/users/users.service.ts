@@ -1,40 +1,45 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { RegisterUserInput } from './dto/register-user.input';
-import { User } from './user.schema';
+import { RegisterUserInput } from '../auth/dto/register-user.input';
+import { User, UserDocument } from './user.schema';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
-import { HashService } from './hash/hash.service';
-
+import { Model,Types } from 'mongoose'
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User.name) private userModel: Model<User>, private hashService: HashService){
+  constructor(
+    @InjectModel(User.name) private userModel: Model<UserDocument>
+    ){
   
   }
 
-  async getUserByUsername(username: string) {
+  async findByUsername(username: string) {
     return this.userModel.findOne({
         username
       })
       .exec();
   }
 
-  async registerUser(createUserInput: RegisterUserInput) {
+  async createUser(createUserInput: RegisterUserInput) {
     const createUser = new this.userModel(createUserInput)
-    const user = await this.getUserByUsername(createUser.username);
+    const user = await this.findByUsername(createUser.username);
     if (user) {
       throw new BadRequestException();
     }
-    // Hash Password
-    createUser.password = await this.hashService.hashPassword(createUser.password);
     return createUser.save();
   }
-
+  async update(
+    id: string,
+    updateUserDto: any,
+  ): Promise<UserDocument> {
+    return this.userModel
+      .findByIdAndUpdate(id, updateUserDto, { new: true })
+      .exec();
+  }
   findAll() {
     return this.userModel.find()
   }
 
-  findOne(id: string) {
-    return this.userModel.findById(id)
+  findById(id: string): Promise<UserDocument> {
+    return this.userModel.findById(id);
   }
 
   remove(id: string) {
