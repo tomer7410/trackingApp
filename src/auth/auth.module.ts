@@ -29,10 +29,6 @@ import { RefreshTokenStrategy } from 'src/auth/strategies/refreshToken.strategy'
   
   @Module({
     imports: [
-     MongooseModule.forFeature([{
-        name: User.name,
-        schema: UserSchema
-      }]),
      JwtModule.register({}),
     ],
     providers: [AuthResolver,AuthService, UsersService, HashService, AccessTokenStrategy,RefreshTokenStrategy],

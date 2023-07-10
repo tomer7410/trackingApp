@@ -1,6 +1,6 @@
 import {
     UsersService
-  } from 'src/users/users.service';
+  } from '../users/users.service';
   import {
     BadRequestException,
     ForbiddenException,
@@ -11,9 +11,9 @@ import {
   } from '@nestjs/jwt';
   import {
     HashService
-  } from 'src/hash/hash.service';
-import { RegisterUserInput } from 'src/auth/dto/register-user.input';
-import { LoginUserInput } from 'src/auth/dto/login-user.input';
+  } from '../hash/hash.service';
+import { RegisterUserInput } from './dto/register-user.input';
+import { LoginUserInput } from './dto/login-user.input';
 import { jwtConstants } from './constants';
   
   @Injectable()
