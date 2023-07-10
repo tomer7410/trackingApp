@@ -10,11 +10,13 @@ describe('AuthService', () => {
   let mockedUsersService = 
   { 
     findByUsername: jest.fn().mockResolvedValue(false),
+    findById: jest.fn().mockResolvedValue({refreshToken:true}),
     createUser: jest.fn().mockResolvedValue({}),
   };
   let mockedHashService = { 
     hashPassword: jest.fn().mockResolvedValue("deftfdvsdc"),
-    
+    comparePassword: jest.fn().mockResolvedValue(true),
+    validateToken: jest.fn().mockResolvedValue(true)
   };
 
   beforeEach(async () => {
@@ -35,6 +37,11 @@ describe('AuthService', () => {
     }).compile();
 
     service = module.get<AuthService>(AuthService);
+    service.getTokens = jest.fn().mockResolvedValue({
+      accessToken:'fverg',
+      refreshToken: 'fewfrf'
+    })
+    service.updateRefreshToken = jest.fn().mockResolvedValue({})
   });
   
   it('should be defined', () => {
@@ -42,19 +49,13 @@ describe('AuthService', () => {
   });
 
   describe('registration testing',()=>{
-    beforeEach(()=>{
-      service.getTokens = jest.fn().mockResolvedValue({
-        accessToken:'fverg',
-        refreshToken: 'fewfrf'
-      })
-      service.updateRefreshToken = jest.fn().mockResolvedValue({})
-    })
+
     it('should return tokens', async ()=> {
-      
+
       const tokens = await service.registerUser({email:'r@a.com',username:'tom',password:'12345'})
-      console.log(tokens)
       expect(tokens).toHaveProperty(['refreshToken'])
       expect(tokens).toHaveProperty(['accessToken'])
+
     })
     it('should throw exception', async ()=> {
       mockedUsersService.findByUsername = jest.fn().mockResolvedValue(true)
@@ -67,4 +68,62 @@ describe('AuthService', () => {
     })
     
   })
+
+  describe('login testing',()=>{
+    
+    it('should return tokens', async ()=> {
+      mockedUsersService.findByUsername = jest.fn().mockResolvedValue(true)
+      const tokens = await service.login({username:'tom',password:'12345'})
+      expect(tokens).toHaveProperty(['refreshToken'])
+      expect(tokens).toHaveProperty(['accessToken'])
+    })
+    it('should throw unmatched password exception', async ()=> {
+      try {
+        await service.login({username:'tom',password:'12'})
+      } catch (error) {
+         expect(error.message).toMatch('Password is incorrect')
+      }
+      
+    })
+
+    it('should throw user not found exception', async ()=> {
+      mockedUsersService.findByUsername = jest.fn().mockResolvedValue(false)
+      try {
+        await service.login({username:'tom',password:'12'})
+      } catch (error) {
+         expect(error.message).toMatch('User does not exist')
+      }
+      
+    })
+    
+  })
+
+  describe('refresh Tokens testing',()=>{
+    it('should return tokens', async ()=> {
+     
+      const tokens = await service.refreshTokens('userID','refreshToken')
+      expect(tokens).toHaveProperty(['refreshToken'])
+      expect(tokens).toHaveProperty(['accessToken'])
+    })
+    it('should throw access denied exception 1', async ()=> {
+      mockedUsersService.findById = jest.fn().mockResolvedValueOnce({})
+      try {
+        await service.refreshTokens('userID','refreshToken')
+      } catch (error) {
+         expect(error.message).toMatch('Access Denied')
+      }
+      
+    })
+    it('should throw access denied exception 2', async ()=> {
+      mockedUsersService.findById = jest.fn().mockResolvedValueOnce({refreshToken:{}})
+      try {
+        await service.refreshTokens('userID','refreshToken')
+      } catch (error) {
+         expect(error.message).toMatch('Access Denied')
+      }
+      
+    })
+  })
+
+
 });

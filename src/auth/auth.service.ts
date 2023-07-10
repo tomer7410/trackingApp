@@ -82,7 +82,7 @@ import { jwtConstants } from './constants';
             secret: jwtConstants.secret,
             expiresIn: '7d',
           },
-        ),
+        )
       ]);
   
       return {

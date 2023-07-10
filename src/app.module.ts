@@ -14,8 +14,9 @@ import { AuthModule } from './auth/auth.module';
       sortSchema: true,
     }),
     MongooseModule.forRoot('mongodb://127.0.0.1:27017/auth'),
+    AuthModule,
     UserModule,
-    AuthModule
+   
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -26,11 +26,13 @@ import {
 import { AuthResolver } from './auth.resolver';
 import { AccessTokenStrategy } from 'src/auth/strategies/accessToken.strategy';
 import { RefreshTokenStrategy } from 'src/auth/strategies/refreshToken.strategy';
+import { UserModule } from 'src/users/users.module';
   
   @Module({
     imports: [
      JwtModule.register({}),
+     UserModule
     ],
-    providers: [AuthResolver,AuthService, UsersService, HashService, AccessTokenStrategy,RefreshTokenStrategy],
+    providers: [AuthResolver, AuthService, HashService, AccessTokenStrategy, RefreshTokenStrategy],
   })
   export class AuthModule {}
