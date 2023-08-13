@@ -11,26 +11,26 @@ import { RefreshTokenGuard } from './guards/refreshToken.guard';
 @Resolver()
 export class AuthResolver {
     constructor(
-      private readonly authService: AuthService
+      private readonly _authService: AuthService
       ) {}
     
     @UseGuards(AccessTokenGuard)
     @Mutation(() => LoggedUserOutput)
     async registerUser(@Args('registerUserInput') registerUserInput: RegisterUserInput) {
-      const tokens =  await this.authService.registerUser(registerUserInput);
+      const tokens =  await this._authService.registerUser(registerUserInput);
       return tokens
     }
 
     @Mutation(() => LoggedUserOutput)
     async login(@Args('loginUserInput') loginUserInput:LoginUserInput) {
-      const tokens =  await this.authService.login(loginUserInput);
+      const tokens =  await this._authService.login(loginUserInput);
       return tokens
     }
     @UseGuards(RefreshTokenGuard)
     @Mutation(() => LoggedUserOutput)
     async refreshTokens(@CurrentUser() user:any) {
       const {refreshToken, sub: userId} = user
-      const tokens =  await this.authService.refreshTokens(userId,refreshToken);
+      const tokens =  await this._authService.refreshTokens(userId,refreshToken);
       return tokens
     }
 
