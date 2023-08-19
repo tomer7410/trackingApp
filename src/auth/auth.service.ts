@@ -4,6 +4,7 @@ import {
   import {
     BadRequestException,
     ForbiddenException,
+    Inject,
     Injectable
   } from '@nestjs/common';
   import {
@@ -15,12 +16,15 @@ import {
 import { RegisterUserInput } from './dto/register-user.input';
 import { LoginUserInput } from './dto/login-user.input';
 import { jwtConstants } from './constants';
+import { ClientProxy } from '@nestjs/microservices';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
   
   @Injectable()
   export class AuthService {
     constructor(private usersService: UsersService,
       private hashService: HashService,
-      private jwtService: JwtService) {}
+      private jwtService: JwtService,
+      @Inject(CACHE_MANAGER) private cacheService: Cache) {}
   
     async validateUser(username: string, pass: string): Promise < any > {
       const user = await this.usersService.findByUsername(username);
@@ -30,6 +34,7 @@ import { jwtConstants } from './constants';
       return null;
     }
     async registerUser(createUserDto: RegisterUserInput): Promise<any> {
+      // this.redisClient.send('sum', 1234);
       // Check if user exists
       const userExists = await this.usersService.findByUsername(
         createUserDto.username,
@@ -55,7 +60,7 @@ import { jwtConstants } from './constants';
       if (!user) throw new BadRequestException('User does not exist');
       const passwordMatches = await this.hashService.comparePassword(data.password,user.password)
       if (!passwordMatches)
-        throw new BadRequestException('Password is incorrect');
+        return new BadRequestException('Password is incorrect');
       const tokens = await this.getTokens(user.id, user.username);
       await this.updateRefreshToken(user.id, tokens.refreshToken);
       return tokens;
@@ -99,12 +104,12 @@ import { jwtConstants } from './constants';
     async refreshTokens(userId: string, refreshToken: string) {
       const user = await this.usersService.findById(userId);
       if (!user || !user.refreshToken)
-        throw new ForbiddenException('Access Denied');
+        return new ForbiddenException('Access Denied');
       const refreshTokenMatches = await this.hashService.validateToken(
         user.refreshToken,
         refreshToken,
-      );
-      if (!refreshTokenMatches) throw new ForbiddenException('Access Denied');
+      )
+      if (!refreshTokenMatches) return new ForbiddenException('Access Denied');
       const tokens = await this.getTokens(user.id, user.username);
       await this.updateRefreshToken(user.id, tokens.refreshToken);
       return tokens;
