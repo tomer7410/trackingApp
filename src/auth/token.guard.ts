@@ -5,7 +5,7 @@ import { AuthenticationError } from 'apollo-server-core';
 import { ExecutionContextHost } from '@nestjs/core/helpers/execution-context-host';
 
 @Injectable()
-export class RefreshTokenGuard extends AuthGuard('jwt-refresh') {
+export class TokenGuard extends AuthGuard('jwt') {
 
     canActivate(context: ExecutionContext) {
         const ctx = GqlExecutionContext.create(context);
@@ -19,7 +19,7 @@ export class RefreshTokenGuard extends AuthGuard('jwt-refresh') {
 
     handleRequest(err: any, user: any) {
         if (err || !user) {
-            throw err || new AuthenticationError('RefreshTokenGuards');
+            throw err || new AuthenticationError('TokenGuard');
         }
         return user;
     }

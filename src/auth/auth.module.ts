@@ -17,8 +17,7 @@ import {
     HashService
   } from 'src/hash/hash.service';
 import { AuthResolver } from './auth.resolver';
-import { AccessTokenStrategy } from 'src/auth/strategies/accessToken.strategy';
-import { RefreshTokenStrategy } from 'src/auth/strategies/refreshToken.strategy';
+import { TokenStrategy } from 'src/auth/token.strategy';
 import { UserModule } from 'src/users/users.module';
 import { ClientsModule, Transport } from '@nestjs/microservices';
   
@@ -37,6 +36,6 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
      JwtModule.register({}),
      UserModule
     ],
-    providers: [AuthResolver, AuthService, HashService, AccessTokenStrategy, RefreshTokenStrategy],
+    providers: [AuthResolver, AuthService, HashService, TokenStrategy],
   })
   export class AuthModule {}

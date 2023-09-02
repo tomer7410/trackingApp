@@ -16,9 +16,9 @@ import {
 import { RegisterUserInput } from './dto/register-user.input';
 import { LoginUserInput } from './dto/login-user.input';
 import { jwtConstants } from './constants';
-import { ClientProxy } from '@nestjs/microservices';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
-  
+import { Cache } from 'cache-manager';
+import { ICoonnectedUser } from 'src/interfaces/connected-user.interface';
   @Injectable()
   export class AuthService {
     constructor(private usersService: UsersService,
@@ -34,7 +34,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
       return null;
     }
     async registerUser(createUserDto: RegisterUserInput): Promise<any> {
-      // this.redisClient.send('sum', 1234);
+      this.cacheService.set('token',123,{ttl:1})
       // Check if user exists
       const userExists = await this.usersService.findByUsername(
         createUserDto.username,
@@ -64,6 +64,14 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
       const tokens = await this.getTokens(user.id, user.username);
       await this.updateRefreshToken(user.id, tokens.refreshToken);
       return tokens;
+    }
+    insertToBlackList(userId: string,token: string, experationTime: number) {
+      const experationDate = new Date(experationTime);
+      const currentDate = new Date();
+      const experationDateMill = experationDate.getTime()
+      const currentDateMill = currentDate.getTime()
+      const ttl = Math.round( (experationDateMill - currentDateMill) / 1000 ) // convert to seconds
+      this.cacheService.set(11,token,{ttl:ttl})
     }
     async getTokens(userId: string, username: string) {
       const [accessToken, refreshToken] = await Promise.all([

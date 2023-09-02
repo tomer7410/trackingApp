@@ -4,11 +4,10 @@ import { UseFilters, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoggedUserOutput } from './dto/logged-user.output';
 import { LoginUserInput } from './dto/login-user.input';
-import { AccessTokenGuard } from './guards/accessToken.guard';
 import { CurrentUser } from 'src/decorators/user.decorator';
-import { RefreshTokenGuard } from './guards/refreshToken.guard';
 import { HttpExceptionFilter } from './http-exception.filter';
-import { MessagePattern } from '@nestjs/microservices';
+import { ICoonnectedUser } from 'src/interfaces/connected-user.interface';
+import { TokenGuard } from './token.guard';
 @UseFilters( new HttpExceptionFilter())
 @Resolver()
 export class AuthResolver {
@@ -17,7 +16,6 @@ export class AuthResolver {
       ) {}
     
     // @UseGuards(AccessTokenGuard)
-    @MessagePattern('register')
     @Mutation(() => LoggedUserOutput)
     async registerUser(@Args('registerUserInput') registerUserInput: RegisterUserInput) {
       const tokens =  await this._authService.registerUser(registerUserInput);
@@ -29,11 +27,18 @@ export class AuthResolver {
       const tokens =  await this._authService.login(loginUserInput);
       return tokens
     }
-    @UseGuards(RefreshTokenGuard)
+    @UseGuards(TokenGuard)
+    @Mutation(()=>Number,{nullable:true})
+    async logout (@CurrentUser() user: ICoonnectedUser) {
+      const { sub:userId,token:token,exp:experationTime} = user
+      const tokens =  await this._authService.insertToBlackList(userId,token, experationTime*1000);
+      return tokens
+    }
+    @UseGuards(TokenGuard)
     @Mutation(() => LoggedUserOutput)
-    async refreshTokens(@CurrentUser() user:any) {
-      const {refreshToken, sub: userId} = user
-      const tokens =  await this._authService.refreshTokens(userId,refreshToken);
+    async refreshTokens(@CurrentUser() user: ICoonnectedUser) {
+      const {token, sub: userId} = user
+      const tokens =  await this._authService.refreshTokens(userId,token);
       return tokens  
     }
 

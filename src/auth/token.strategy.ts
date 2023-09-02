@@ -1,6 +1,6 @@
 import {
     jwtConstants
-  } from '../constants';
+  } from './constants';
   
   import {
     ExtractJwt,
@@ -12,22 +12,23 @@ import {
   import {
     Injectable
   } from '@nestjs/common';
+  import { Request } from 'express';
   
   @Injectable()
-  export class AccessTokenStrategy extends PassportStrategy(Strategy,'jwt') {
+  export class TokenStrategy extends PassportStrategy(Strategy,'jwt') {
     constructor() {
       super({
         jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
         ignoreExpiration: false,
         secretOrKey: jwtConstants.secret,
+        passReqToCallback: true,
       });
     }
   
-    async validate(payload: any) {
-      return {
-        userId: payload.sub,
-        username: payload.username,
-        email:payload.email
-      };
-    }
+    
+  validate(req: Request, payload: any) {
+    const token = req.get('Authorization').replace('Bearer', '').trim();
+    return { ...payload, token };
+  }
+
   }
